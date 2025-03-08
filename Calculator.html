@@ -1,0 +1,194 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Calculatrice</title>
+	<style>
+		html, body {
+			font-family: Arial, sans-serif;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			width: 160px;
+			height: 165px;
+			overflow: hidden;
+			margin: 0;
+			padding: 0;
+			background-color: #f0f0f0;
+		}
+
+		.calculator {
+			width: 140px;
+			height: 145px; /* Ajusté pour s'arrêter au dernier bouton */
+			background: white;
+			padding: 4px;
+			border-radius: 5px;
+			box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+			text-align: center;
+			display: flex;
+			flex-direction: column;
+		}
+
+		.display {
+			width: 100%;
+			height: 50px; /* Agrandi pour éviter l'espace vide */
+			font-size: 18px;
+			text-align: right;
+			padding: 4px;
+			border: none;
+			background: #eef;
+			border-radius: 3px;
+			margin-bottom: 4px;
+			box-sizing: border-box;
+		}
+
+		.buttons {
+			display: grid;
+			grid-template-columns: repeat(5, 1fr);
+			gap: 2px;
+		}
+
+		button {
+			font-size: 14px;
+			padding: 3px;
+			border: none;
+			cursor: pointer;
+			border-radius: 2px;
+			background: #ddd;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+		}
+
+			button:active {
+				background: #ccc;
+			}
+
+		.operator {
+			background: orange;
+			color: white;
+		}
+
+		.equal {
+			background: green;
+			color: white;
+		}
+
+		.clear {
+			background: red;
+			color: white;
+		}
+	</style>
+</head>
+<body>
+
+	<div class="calculator">
+		<input type="text" id="display" class="display" disabled>
+
+		<div class="buttons">
+			<button onclick="appendNumber('7')">7</button>
+			<button onclick="appendNumber('8')">8</button>
+			<button onclick="appendNumber('9')">9</button>
+			<button class="clear" onclick="deleteLast()">Del</button>
+			<button class="clear" onclick="clearDisplay()">AC</button>
+
+			<button onclick="appendNumber('4')">4</button>
+			<button onclick="appendNumber('5')">5</button>
+			<button onclick="appendNumber('6')">6</button>
+			<button class="operator" onclick="appendSymbol('*')">*</button>
+			<button class="operator" onclick="appendSymbol('/')">/</button>
+
+			<button onclick="appendNumber('1')">1</button>
+			<button onclick="appendNumber('2')">2</button>
+			<button onclick="appendNumber('3')">3</button>
+			<button class="operator" onclick="appendSymbol('+')">+</button>
+			<button class="operator" onclick="appendSymbol('-')">-</button>
+
+			<button onclick="appendNumber('0')">0</button>
+			<button onclick="appendSymbol('.')">.</button>
+			<button onclick="appendSymbol('**')">^</button>
+			<button onclick="appendAns()">Ans</button>
+			<button class="equal" onclick="calculateResult()">=</button>
+		</div>
+	</div>
+
+	<script>
+		let display = document.getElementById("display");
+		let lastResult = "0";
+
+		function appendNumber(number) {
+			display.value += number;
+		}
+
+		function appendSymbol(symbol) {
+			if (symbol === "**") {
+				display.value += "^"; // Afficher "^" au lieu de "**"
+			} else {
+				display.value += symbol;
+			}
+		}
+
+		function clearDisplay() {
+			display.value = "";
+		}
+
+		function deleteLast() {
+			display.value = display.value.slice(0, -1);
+		}
+
+		function calculateResult() {
+			try {
+				let expression = display.value.replace(/\^/g, "**"); // Convertir "^" en "**" pour eval()
+				lastResult = eval(expression);
+				display.value = lastResult;
+			} catch {
+				display.value = "Erreur";
+			}
+		}
+
+		function appendAns() {
+			display.value += lastResult;
+		}
+
+		document.addEventListener("keydown", function (event) {
+			const key = event.key;
+
+			if (!isNaN(key)) {
+				appendNumber(key);
+			} else if (["+", "-", "*", "/", "^"].includes(key)) {
+				appendSymbol(key === "^" ? "**" : key);
+			} else if (key === "Enter") {
+				calculateResult();
+			} else if (key === "Backspace") {
+				deleteLast();
+			} else if (key === "Escape") {
+				clearDisplay();
+			} else if (key === ".") {
+				appendSymbol(".");
+			}
+		});
+		document.addEventListener("keydown", function (event) {
+			if (event.key === "Tab") {
+				event.preventDefault(); // Bloque Tab pour éviter de sauter d’un bouton à l’autre
+			}
+		});
+
+		document.addEventListener("keydown", function (event) {
+			if (event.key === "Enter") {
+				event.preventDefault(); // Bloque le comportement par défaut
+				document.getElementById("equalButton").click(); // Simule un clic sur le bouton "="
+			}
+		});
+
+		// Réinitialiser l'action de "Enter" après chaque clic
+		document.querySelectorAll("button").forEach(button => {
+			button.addEventListener("click", function () {
+				document.activeElement.blur(); // Désactive le focus du bouton cliqué
+			});
+		});
+
+	</script>
+
+</body>
+</html>
